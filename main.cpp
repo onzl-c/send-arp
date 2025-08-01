@@ -51,8 +51,8 @@ int main(int argc, char* argv[]) {
             }
             // 3. 위조된 ARP Reply (Infection) 패킷을 sender에게 전송
             printf("\n");
-            printf("attack_ip: ");
-            print_ip(sender_ip);
+            printf("attack_mac: ");
+            print_mac(sender_mac);
             printf("\n");
             send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
         }
