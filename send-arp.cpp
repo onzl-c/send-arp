@@ -18,9 +18,9 @@ void request_sender_mac(pcap_t* handle, uint8_t* my_mac, uint32_t my_ip, uint32_
         packet.arp_.plen_ = 0x04;
         packet.arp_.op_ = htons(ArpHdr::REQUEST);
         memcpy(packet.arp_.smac_, my_mac, 6);
-        packet.arp_.sip_ = htonl(my_ip);
+        packet.arp_.sip_ = my_ip;
         memset(packet.arp_.dmac_, 0x00, 6);
-        packet.arp_.dip_ = htonl(sender_ip);
+        packet.arp_.dip_ = sender_ip;
 
         int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(&packet), sizeof(EthArp));
         if (res != 0) {
@@ -28,26 +28,29 @@ void request_sender_mac(pcap_t* handle, uint8_t* my_mac, uint32_t my_ip, uint32_
         }
 }
 
-bool analysis_sender_mac(pcap_t* handle, uint32_t sender_ip, uint32_t target_ip, uint8_t* sender_mac) {
-    struct pcap_pkthdr* header;
-    const u_char* packet;
-
+bool analysis_sender_mac(pcap_t* handle, uint32_t my_ip, uint32_t sender_ip, uint8_t* sender_mac) {
     while (true) {
+        struct pcap_pkthdr* header;
+        const u_char* packet;
         int res = pcap_next_ex(handle, &header, &packet);
-        if (res == 0) continue; 
-        if (res < 0) {
-            fprintf(stderr, "pcap_next_ex error\n");
-            return false;
+        if (res == 0) continue;
+        if (res < 0) return false;
+
+        // 1. ARP 패킷인지 검사
+        struct EthHdr* eth_hdr = (struct EthHdr*)packet;
+        if (ntohs(eth_hdr->type_) != EthHdr::ARP) {
+            continue; // ARP가 아니면 무시
         }
 
-        EthArp* eth_arp = (EthArp*)(packet);
-        if (ntohl(eth_arp->arp_.sip_) == target_ip &&
-            ntohl(eth_arp->arp_.dip_) == sender_ip &&
-            ntohs(eth_arp->arp_.op_) == ArpHdr::REPLY) {
-                memcpy(sender_mac, eth_arp->arp_.smac_, 6);
-                return true;
+        struct ArpHdr* arp_hdr = (struct ArpHdr*)(packet + sizeof(EthHdr));
+
+        // 2. ARP Reply인지, 내가 찾던 IP의 응답인지 확인
+        if (ntohs(arp_hdr->op_) == ArpHdr::REPLY && arp_hdr->sip_ == sender_ip) {
+            memcpy(sender_mac, arp_hdr->smac_, 6);
+            return true;
         }
     }
+    return false;
 }
 
 void send_arp_attack(pcap_t* handle, uint8_t* sender_mac, uint32_t sender_ip, uint32_t target_ip, uint8_t* my_mac) {
