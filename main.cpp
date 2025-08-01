@@ -32,7 +32,8 @@ int main(int argc, char* argv[]) {
     printf("\n");
 
     // 3. 반복문으로 모든 IP 쌍에 대해 공격 수행
-    for (int i = 2; i < argc; i += 2) {
+    while(true) {
+        for (int i = 2; i < argc; i += 2) {
         const char* si = argv[i];
         const char* ti = argv[i+1];
         
@@ -48,7 +49,9 @@ int main(int argc, char* argv[]) {
             continue;
         }
         // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
+
         send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
+        }
     }
     
     printf("----------------------------------------\n");
