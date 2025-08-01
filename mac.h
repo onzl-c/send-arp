@@ -3,4 +3,5 @@
 #include "eunet.h"
 
 uint8_t* setMac(const string& mac);
-uint8_t* getMyMac(const char* interface_name);
+void print_mac(const uint8_t* mac);
+bool getMyMac(const char* interface_name, uint8_t* mac_addr);

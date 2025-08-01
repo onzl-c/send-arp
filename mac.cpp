@@ -8,14 +8,21 @@ uint8_t* setMac(const string& mac) {
     return mac_addr;
 }
 
-// 외부에서 가져온 코드
-uint8_t* getMyMac(const char* interface_name) {
-    static char mac_str[18];
+void print_mac(const uint8_t* mac) {
+    for (int i = 0; i < 6; i++) {
+        printf("%02x", mac[i]);
+        if (i < 5) {
+            printf(":");
+        }
+    }
+}
 
+// 외부에서 가져온 코드
+bool getMyMac(const char* interface_name, uint8_t* mac_addr) {
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0) {
         perror("socket");
-        return nullptr;
+        return false;
     }
 
     struct ifreq ifr;
@@ -24,13 +31,9 @@ uint8_t* getMyMac(const char* interface_name) {
     if (ioctl(sock, SIOCGIFHWADDR, &ifr) < 0) {
         perror("ioctl(SIOCGIFHWADDR)");
         close(sock);
-        return nullptr;
-    }   
+        return false;
+    }
     close(sock);
-
-    unsigned char* mac = (unsigned char*)ifr.ifr_hwaddr.sa_data;
-    snprintf(mac_str, sizeof(mac_str), "%02x:%02x:%02x:%02x:%02x:%02x",
-             mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
-
-    return setMac(mac_str);
+    memcpy(mac_addr, ifr.ifr_hwaddr.sa_data, 6);
+    return true;
 }
