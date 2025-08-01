@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
             request_sender_mac(pcap, my_mac, my_ip, sender_ip);
             // 2. 응답으로 sender의 MAC 주소를 알아냄
             uint8_t sender_mac[6];
-            if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
+            if (!analysis_sender_mac(pcap, my_ip, sender_ip, sender_mac)) {
                 printf("\n");
                 printf("Failed to get sender's MAC address.\n");
                 continue;
