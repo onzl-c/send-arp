@@ -54,7 +54,17 @@ bool analysis_sender_mac(pcap_t* handle, uint32_t my_ip, uint32_t sender_ip, uin
         }
 
         struct ArpHdr* arp_hdr = (struct ArpHdr*)(packet + sizeof(EthHdr));
-
+        // ================== 디버깅 로그 추가 ==================
+        printf("\n--- Sending ARP Request ---\n");
+        printf("Eth Dst MAC: "); print_mac(eth_hdr->dmac_);
+        printf("\nEth Src MAC: "); print_mac(eth_hdr->smac_);
+        printf("\nARP Sender MAC: "); print_mac(arp_hdr->smac_);
+        printf("\nARP Sender IP: "); print_ip(arp_hdr->sip_);
+        printf("\nARP Target MAC: "); print_mac(arp_hdr->dmac_);
+        printf("\nARP Target IP: "); print_ip(arp_hdr->dip_);
+        printf("\n--------------------------\n");
+        // ====================================================
+        
         // 2. 내가 찾던 ARP Reply인지 확인
         if (ntohs(arp_hdr->op_) == ArpHdr::REPLY && arp_hdr->sip_ == sender_ip) {
             memcpy(sender_mac, arp_hdr->smac_, 6);
