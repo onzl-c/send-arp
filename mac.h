@@ -2,5 +2,5 @@
 
 #include "eunet.h"
 
-uint8_t* setMac(const std::string& mac);
-const char* getMyMac(const char* interface_name);
+uint8_t* setMac(const string& mac);
+uint8_t* getMyMac(const char* interface_name);

@@ -14,7 +14,6 @@ struct EthArp final {
 
 void usage();
 
-uint8_t* send_arp_attack(pcap_t* handle, \
-                    uint8_t* sender_mac, const char* sender_ip, \
-                    uint8_t* target_mac, const char* target_ip, \
-                    uint16_t opcode, const char* attacker_mac="00:00:00:00:00:00");
+void request_sender_mac(pcap_t* handle, uint8_t* my_mac, uint32_t my_ip, uint32_t sender_ip);
+bool analysis_sender_mac(pcap_t* handle, uint32_t sender_ip, uint32_t target_ip, uint8_t* sender_mac);
+void send_arp_attack(pcap_t* handle, uint8_t* sender_mac, uint32_t sender_ip, uint32_t target_ip, uint8_t* my_mac);

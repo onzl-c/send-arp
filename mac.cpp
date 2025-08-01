@@ -1,6 +1,6 @@
 #include "mac.h"
 
-uint8_t* setMac(const std::string& mac) {
+uint8_t* setMac(const string& mac) {
     static uint8_t mac_addr[6];
     sscanf(mac.c_str(), "%hhx:%hhx:%hhx:%hhx:%hhx:%hhx",
            &mac_addr[0], &mac_addr[1], &mac_addr[2],
@@ -8,7 +8,8 @@ uint8_t* setMac(const std::string& mac) {
     return mac_addr;
 }
 
-const char* getMyMac(const char* interface_name) {
+// 외부에서 가져온 코드
+uint8_t* getMyMac(const char* interface_name) {
     static char mac_str[18];
 
     int sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -31,5 +32,5 @@ const char* getMyMac(const char* interface_name) {
     snprintf(mac_str, sizeof(mac_str), "%02x:%02x:%02x:%02x:%02x:%02x",
              mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 
-    return mac_str;
+    return setMac(mac_str);
 }
