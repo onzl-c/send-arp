@@ -22,6 +22,17 @@ void request_sender_mac(pcap_t* handle, uint8_t* my_mac, uint32_t my_ip, uint32_
         memset(packet.arp_.dmac_, 0x00, 6);
         packet.arp_.dip_ = sender_ip;
 
+        // ================== 디버깅 로그 추가 ==================
+        printf("\n--- Sending ARP Request ---\n");
+        printf("Eth Dst MAC: "); print_mac(packet.eth_.dmac_);
+        printf("\nEth Src MAC: "); print_mac(packet.eth_.smac_);
+        printf("\nARP Sender MAC: "); print_mac(packet.arp_.smac_);
+        printf("\nARP Sender IP: "); print_ip(packet.arp_.sip_);
+        printf("\nARP Target MAC: "); print_mac(packet.arp_.dmac_);
+        printf("\nARP Target IP: "); print_ip(packet.arp_.dip_);
+        printf("\n--------------------------\n");
+        // ====================================================
+
         int res = pcap_sendpacket(handle, reinterpret_cast<const u_char*>(&packet), sizeof(EthArp));
         if (res != 0) {
             fprintf(stderr, "request sender mac packet return %d error=%s\n", res, pcap_geterr(handle));
