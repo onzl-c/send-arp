@@ -2,6 +2,7 @@
 
 #include "eunet.h"
 
+#pragma pack(push, 1)
 struct ArpHdr {
     uint16_t hrd_;
     uint16_t pro_;
@@ -24,3 +25,4 @@ struct ArpHdr {
         REPLY = 2
     };
 };
+#pragma pack(pop)

@@ -2,6 +2,7 @@
 
 #include "eunet.h"
 
+#pragma pack(push, 1)
 struct EthHdr {
     uint8_t dmac_[6];
     uint8_t smac_[6];
@@ -14,3 +15,4 @@ struct EthHdr {
       IP6 = 0x86DD
 	};
 };
+#pragma pack(pop)
