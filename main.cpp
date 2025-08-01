@@ -45,11 +45,15 @@ int main(int argc, char* argv[]) {
             // 2. 응답으로 Target의 MAC 주소를 알아냄
             uint8_t sender_mac[6];
             if (!analysis_sender_mac(pcap, sender_ip, target_ip, sender_mac)) {
+                printf("\n");
                 printf("Failed to get sender's MAC address.\n");
                 continue;
             }
             // 3. 위조된 ARP Reply (Infection) 패킷을 Target에게 전송
-
+            printf("\n");
+            printf("attack_ip: ");
+            print_ip(sender_ip);
+            printf("\n");
             send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
         }
     }
