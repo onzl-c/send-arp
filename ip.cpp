@@ -1,6 +1,6 @@
 #include "ip.h"
 
-uint32_t setIp(const std::string& ip_str) {
+uint32_t setIp(const string& ip_str) {
     struct in_addr addr;
     if (inet_aton(ip_str.c_str(), &addr) == 0) {
         fprintf(stderr, "Invalid IP address: %s\n", ip_str.c_str());
@@ -9,7 +9,7 @@ uint32_t setIp(const std::string& ip_str) {
     return addr.s_addr;
 }
 
-void print_ip(uint32_t ip) {
+void printIp(uint32_t ip) {
     struct in_addr ip_addr;
     ip_addr.s_addr = ip; 
     printf("%s", inet_ntoa(ip_addr));

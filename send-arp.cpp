@@ -40,7 +40,7 @@ bool analysis_sender_mac(pcap_t* handle, uint32_t my_ip, uint32_t sender_ip, uin
         struct EthHdr* eth_hdr = (struct EthHdr*)packet;
         if (ntohs(eth_hdr->type_) != EthHdr::ARP) {
             printf("(Not an ARP packet, skipping.)\n");
-            continue; // ARP가 아니면 이 패킷은 무시하고 다음 패킷으로
+            continue; 
         }
 
         struct ArpHdr* arp_hdr = (struct ArpHdr*)(packet + sizeof(EthHdr));

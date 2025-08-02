@@ -8,7 +8,7 @@ uint8_t* setMac(const string& mac) {
     return mac_addr;
 }
 
-void print_mac(const uint8_t* mac) {
+void printMac(const uint8_t* mac) {
     for (int i = 0; i < 6; i++) {
         printf("%02x", mac[i]);
         if (i < 5) {
